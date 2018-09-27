@@ -46,7 +46,7 @@ function [t,y]= Data_Generation()
     Tempratures = normrnd(323.15,10,1,100);     %Random values of Temprature with 
     R_lms= normrnd(1000,500,100);               %Random values of flow rate of monomer
     
-    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data@10.txt', 'wt');
+    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data@1550.txt', 'wt');
     for i=1:100
         T=Tempratures(i);   
         for j=1:100

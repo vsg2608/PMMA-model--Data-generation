@@ -44,17 +44,15 @@ function [t,y]= Data_Generation()
     M_0= 1E6;                  %Initial moles of monomer
     
     Tempratures = normrnd(323.15,10,1,100);     %Random values of Temprature with 
-    R_lms= normrnd(500,100,100);               %Random values of flow rate of monomer
+    R_lms= normrnd(1000,500,100);               %Random values of flow rate of monomer
     
-    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data.txt', 'wt');
-    for i=1:1
+    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data@1550.txt', 'wt');
+    for i=1:100
         T=Tempratures(i);   
-        for j=1:1
+        for j=1:100
             R_lm =R_lms(j);
-            R_lm=5000;
-            T=319;
-            Tf=140;              %Final time in minutes
-            n=Tf*2;             %No of parts
+            Tf=10;               %Final time in minutes
+            n=Tf*2;              %No of parts
             A_1= A(1,1)*(T-273.15) + A(1,2);
             A_2 = A(2,1)*(T-273.15) + A(2,2);
             A_3 = A(3,1)*(T-273.15) + A(3,2);
@@ -77,9 +75,8 @@ function [t,y]= Data_Generation()
             rho_p = 1200;                         % Kg/m^3
             [t,y]=NLDaeSoln(Tf,n,I_0,M_0);
             Xm=y(:,13);
-            Xm=1-y(:,2)/y(:,11);
             
-            plot(t,Xm), xlabel('Time(min)'), ylabel('Conversion, Xm'), title('Batch');
+            %plot(t,Xm), xlabel('Time(min)'), ylabel('Conversion, Xm'), title('Batch ');
             
             N=length(Xm);
             Conversion=Xm(N);
@@ -87,7 +84,7 @@ function [t,y]= Data_Generation()
                 Conversion=0;
             end
             fprintf(fid,'%f\t%f\t%f\n',T,R_lm,Conversion);
-            fprintf('Temprature: %f\tFlow Rate: %f\tConversion: %f\n',T,R_lm,Xm(N));
+            fprintf('Temprature: %f\tFlow Rate: %f\tConversion: %f\n',T,R_lm,Conversion);
         end
     end
     fclose(fid);
