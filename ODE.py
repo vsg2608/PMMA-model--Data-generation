@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Aug  7 17:58:06 2018
-
 @author: PRAVESH
 """
 
@@ -57,9 +56,9 @@ B42=-0.4098
 Rg=8.314
 I0=15.48
 M0=1
-Rli=.01
-Rlm=.05
-Rvm=0.05
+Rli=.0
+Rlm=.0
+Rvm=0
 #%%
 def PMMA(x, t, T):
     rho_m=966.5-1.1*(T-273.15)
@@ -138,4 +137,6 @@ for iter_n in range((xvals.shape[0])-1):
 #sol = np.concatenate(sol)
 #Time = np.concatenate(T)
 plt.plot(xvals[0:39],Xm,'b')
+plt.xlabel("Time(min)")
+plt.ylabel("Conversion")
 plt.show()    
