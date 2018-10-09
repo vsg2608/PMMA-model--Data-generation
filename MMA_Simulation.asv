@@ -8,10 +8,9 @@
 %...... mu_1 ; mu_2 ; tau_1 ; tau_2 ; volume ; conversion ; kt ; kp ; k_td] 
 
 %%
-function Conversion= MMA_Simulation(I_0, M_0, T, R_lm, Tf)
-    global E_d E_p E_td k_d0 k0_tm k0_td0 k0_p0 R_gas A_1 A_2 A_3 A_4 B_1 B_2 B_3 B_4 MW_m R_li R_vm f k_d k_tc k0_td k_tm kp_0 kt_0 rho_m rho_p    
+function [t,y]= MMA_Simulation()
+    global E_d E_p E_td k_d0 k0_tm k0_td0 k0_p0 T R_gas A_1 A_2 A_3 A_4 B_1 B_2 B_3 B_4 MW_m R_li R_lm R_vm f k_d k_tc k0_td k_tm kp_0 kt_0 rho_m rho_p Ts     
     %%%%%Parameters for the MMA Dae system
-    
     
     E_d= 128.45E3;                
     E_p= 18.22E3;                
@@ -41,7 +40,16 @@ function Conversion= MMA_Simulation(I_0, M_0, T, R_lm, Tf)
     
     %%%%%%%%
     %% Main Code for simulation
+    I_0= 0.00258;              %Initial moles of initiator
+    M_0= 1E6;                  %Initial moles of monomer
     
+    Tempratures = normrnd(323.15,10,1,100);     %Random values of Temprature with 
+    R_lms= normrnd(1000,500,100);               %Random values of flow rate of monomer
+    
+    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data@1550.txt', 'wt');
+    T=Tempratures(1);
+    R_lm =R_lms(1);
+    Tf=10;               %Final time in minutes
     n=Tf*2;              %No of parts
     A_1= A(1,1)*(T-273.15) + A(1,2);
     A_2 = A(2,1)*(T-273.15) + A(2,2);
@@ -63,8 +71,8 @@ function Conversion= MMA_Simulation(I_0, M_0, T, R_lm, Tf)
     kt_0 = k0_td;                         % m.cube per mol per seconds
     rho_m = 966.5 - 1.1*(T-273.15);       % Kg/m^3
     rho_p = 1200;                         % Kg/m^3
-    [t,C]=NLDaeSoln(Tf,n,I_0,M_0);
-    Xm=C(:,13);
+    [t,y]=NLDaeSoln(Tf,n,I_0,M_0);
+    Xm=y(:,13);
 
     %plot(t,Xm), xlabel('Time(min)'), ylabel('Conversion, Xm'), title('Batch ');
 
@@ -74,6 +82,10 @@ function Conversion= MMA_Simulation(I_0, M_0, T, R_lm, Tf)
         Conversion=0;
     end
     fprintf(fid,'%f\t%f\t%f\n',T,R_lm,Conversion);
+    fprintf('Temprature: %f\tFlow Rate: %f\tConversion: %f\n',T,R_lm,Conversion);
+       
+    fclose(fid);
+
 
     %% function handle for Dae simulation in Ode15s %
     function Dae2= MMADae2(t,x)
