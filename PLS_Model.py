@@ -16,6 +16,7 @@ def normalize(X,Xnorm):
 #Data import
 #%%
 f=open("Data@10.txt","r")
+f2=open("Data@test.txt","r")
 Lines=f.readlines()
 X=[]
 Y=[]
@@ -24,27 +25,37 @@ for line in Lines:
     Data=line.split("\t")
     X.append([float(Data[0]),float(Data[1])])
     Y.append(float(Data[2]))
+Xact=[]
+Yact=[]
+Lines=f2.readlines()
+for line in Lines:
+    line=line.split("\n")[0]
+    Data=line.split("\t")
+    Xact.append([float(Data[0]),float(Data[1])])
+    Yact.append(float(Data[2]))
     
 #Data normalisation and filteration according to Euclidean distance
 #%%
 Xnorm=[323.15,1000]
+Xact=normalize(Xact,Xnorm)
 X=normalize(X,Xnorm)
 
 #Filteration by euclidean distance    
 #Training- Partial Least Square Regression
 #%%
 euclideanThreshold=0.01
-Xpred=X[4]
-Xdist=euclidean_distances(X,[Xpred])
-Xtrain=[]
-Ytrain=[]
-for i in range(len(X)):
-    if(Xdist[i]<euclideanThreshold):
-        Xtrain.append(X[i])
-        Ytrain.append(Y[i])
-pls2 = PLSRegression(n_components=2)
-pls2.fit(Xtrain, Ytrain)
-Ypred = pls2.predict([Xpred],copy=True)
+Ypred=[]
+for Xpred in Xact:
+    Xdist=euclidean_distances(X,[Xpred])
+    Xtrain=[]
+    Ytrain=[]
+    for i in range(len(X)):
+        if(Xdist[i]<euclideanThreshold):
+            Xtrain.append(X[i])
+            Ytrain.append(Y[i])
+    pls2 = PLSRegression(n_components=2)
+    pls2.fit(Xtrain, Ytrain)
+    Ypredict = pls2.predict([Xpred],copy=True)
+    Ypred.append(Ypredict[0][0])
 print(Ypred)
-print(Y[0])
-print("length of Xtrain=",len(Xtrain))
+print(Yact)

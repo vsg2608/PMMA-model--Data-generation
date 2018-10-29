@@ -43,14 +43,14 @@ function [t,y]= Data_Generation()
     I_0= 0.00258;              %Initial moles of initiator
     M_0= 1E6;                  %Initial moles of monomer
     
-    Tempratures = normrnd(323.15,10,1,100);     %Random values of Temprature with 
-    R_lms= normrnd(1000,300,100);               %Random values of flow rate of monomer
+    Tempratures = normrnd(323.15,10,1,300);     %Random values of Temprature with 
+    R_lms= normrnd(1000,300,300);               %Random values of flow rate of monomer
     
-    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data@test.txt', 'wt');
-    for i=1:100
+    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data@train.txt', 'wt');
+    for i=1:300
         T=Tempratures(i);   
-        for j=1:1
-            R_lm =R_lms(i);
+        for j=1:300
+            R_lm =R_lms(j);
             Tf=10;               %Final time in minutes
             n=Tf*2;              %No of parts
             A_1= A(1,1)*(T-273.15) + A(1,2);
