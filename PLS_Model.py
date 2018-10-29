@@ -44,7 +44,7 @@ X=normalize(X,Xnorm)
 #Filteration by euclidean distance    
 #Training- Partial Least Square Regression
 #%%
-euclideanThreshold=0.01
+euclideanThreshold=0.005
 Ypred=[]
 count=0
 Lengths=[]
@@ -74,5 +74,5 @@ plt.plot([-0.2,1,0,0,0,0,1,-0.2],[-0.2,1,0,1,-0.2,0,0,0],color='k',linewidth=1)
 plt.xlabel("Yact")
 plt.ylabel("Ypred")
 plt.title("Ypred vs Yact | EuclideanThreshold= "+str(euclideanThreshold)+" | Outliers= "+str(count),pad=10)
+plt.savefig("results/"+str(euclideanThreshold)+".png")
 plt.show()
-plt.savefig("results/"+str(euclideanThreshold))
