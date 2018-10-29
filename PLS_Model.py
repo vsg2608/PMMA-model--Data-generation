@@ -6,6 +6,7 @@ Created on Tue Oct 30 01:04:07 2018
 """
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.metrics.pairwise import euclidean_distances
+import matplotlib.pyplot as plt
 
 def normalize(X,Xnorm):
     for i in range(len(X)):
@@ -45,6 +46,7 @@ X=normalize(X,Xnorm)
 #%%
 euclideanThreshold=0.01
 Ypred=[]
+count=0
 for Xpred in Xact:
     Xdist=euclidean_distances(X,[Xpred])
     Xtrain=[]
@@ -53,9 +55,21 @@ for Xpred in Xact:
         if(Xdist[i]<euclideanThreshold):
             Xtrain.append(X[i])
             Ytrain.append(Y[i])
+    if(len(Xtrain)==0):
+        Ypred.append(-.25)
+        count+=1
+        continue
     pls2 = PLSRegression(n_components=2)
     pls2.fit(Xtrain, Ytrain)
     Ypredict = pls2.predict([Xpred],copy=True)
     Ypred.append(Ypredict[0][0])
-print(Ypred)
-print(Yact)
+
+#Plots
+#%%
+plt.style.use('seaborn')
+plt.scatter(Yact,Ypred)
+plt.plot([-.1,1,0,0,0,1],[-.1,1,0,1,0,0],color='k',linewidth=1)
+plt.xlabel("Yact")
+plt.xlabel("Ypred")
+plt.show()
+print(count)
