@@ -6,7 +6,12 @@ Created on Tue Oct 30 01:04:07 2018
 """
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.metrics.pairwise import euclidean_distances
-import numpy as np
+
+def normalize(X,Xnorm):
+    for i in range(len(X)):
+        for j in range(len(Xnorm)):
+            X[i][j]=X[i][j]/Xnorm[j]
+    return X
 
 #Data import
 #%%
@@ -17,18 +22,29 @@ Y=[]
 for line in Lines:
     line=line.split("\n")[0]
     Data=line.split("\t")
-    X.append([int(Data[0]),int(Data[1])])
-    Y.append(int(Data[2]))
+    X.append([float(Data[0]),float(Data[1])])
+    Y.append(float(Data[2]))
     
-Xpred=X[0]
-#Data filteration according to Euclidean distance
+#Data normalisation and filteration according to Euclidean distance
 #%%
+Xnorm=[323.15,1000]
+X=normalize(X,Xnorm)
+
+#Filteration by euclidean distance    
+#Training- Partial Least Square Regression
+#%%
+euclideanThreshold=0.01
+Xpred=X[4]
+Xdist=euclidean_distances(X,[Xpred])
 Xtrain=[]
 Ytrain=[]
-Xdist=euclidean_distances(X,[Xpred])
-    
-#Partial Least Square Regression
-#%%
+for i in range(len(X)):
+    if(Xdist[i]<euclideanThreshold):
+        Xtrain.append(X[i])
+        Ytrain.append(Y[i])
 pls2 = PLSRegression(n_components=2)
-pls2.fit(X, Y)
-Ypred = pls2.predict(X,copy=True)
+pls2.fit(Xtrain, Ytrain)
+Ypred = pls2.predict([Xpred],copy=True)
+print(Ypred)
+print(Y[0])
+print("length of Xtrain=",len(Xtrain))
