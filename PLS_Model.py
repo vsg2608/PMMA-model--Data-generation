@@ -47,6 +47,7 @@ X=normalize(X,Xnorm)
 euclideanThreshold=0.01
 Ypred=[]
 count=0
+Lengths=[]
 for Xpred in Xact:
     Xdist=euclidean_distances(X,[Xpred])
     Xtrain=[]
@@ -55,8 +56,9 @@ for Xpred in Xact:
         if(Xdist[i]<euclideanThreshold):
             Xtrain.append(X[i])
             Ytrain.append(Y[i])
+    Lengths.append(len(Xtrain))
     if(len(Xtrain)==0):
-        Ypred.append(-.25)
+        Ypred.append(-0.2)
         count+=1
         continue
     pls2 = PLSRegression(n_components=2)
@@ -66,10 +68,11 @@ for Xpred in Xact:
 
 #Plots
 #%%
-plt.style.use('seaborn')
+plt.style.use('fivethirtyeight')
 plt.scatter(Yact,Ypred)
-plt.plot([-.1,1,0,0,0,1],[-.1,1,0,1,0,0],color='k',linewidth=1)
+plt.plot([-0.2,1,0,0,0,0,1,-0.2],[-0.2,1,0,1,-0.2,0,0,0],color='k',linewidth=1)
 plt.xlabel("Yact")
-plt.xlabel("Ypred")
+plt.ylabel("Ypred")
+plt.title("Ypred vs Yact | EuclideanThreshold= "+str(euclideanThreshold)+" | Outliers= "+str(count),pad=10)
 plt.show()
 print(count)
