@@ -56,7 +56,7 @@ Mo=[]
 #Filteration by euclidean distance    
 #Training- Partial Least Square Regression
 #%%
-euclideanThreshold=0.001
+euclideanThreshold=0.05
 Ypred=[]
 count=0
 Lengths=[]
