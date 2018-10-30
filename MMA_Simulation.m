@@ -73,8 +73,7 @@ function Conversion= MMA_Simulation(I_0, M_0, T, R_lm, Tf)
     if(Xm(N)<0)
         Conversion=0;
     end
-    fprintf(fid,'%f\t%f\t%f\n',T,R_lm,Conversion);
-
+    
     %% function handle for Dae simulation in Ode15s %
     function Dae2= MMADae2(t,x)
         Dae2=zeros(16,1);
