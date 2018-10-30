@@ -56,7 +56,7 @@ Mo=[]
 #Filteration by euclidean distance    
 #Training- Partial Least Square Regression
 #%%
-euclideanThreshold=0.5
+euclideanThreshold=0.001
 Ypred=[]
 count=0
 Lengths=[]
@@ -101,5 +101,5 @@ plt.scatter(t,m, linewidth=0.001,alpha=0.5,color='r')
 plt.scatter(To,Mo, linewidth=0.001,alpha=0.7,color='y')
 plt.xlabel("Temprature")
 plt.ylabel("Initial moles of monomer")
-plt.savefig("results/2"+str(euclideanThreshold)+".png",dp=1000)
+plt.savefig("results/7"+str(euclideanThreshold)+".png",dp=1000)
 plt.show()
