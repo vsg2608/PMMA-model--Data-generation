@@ -46,12 +46,12 @@ function [t,y]= Data_Generation()
     Tempratures = normrnd(323.15,10,1,1000);     %Random values of Temprature with 
     R_lms= normrnd(1000,300,1000);               %Random values of flow rate of monomer
     
-    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data@test82.txt', 'wt');
+    fid = fopen('C:\Users\Vishesh\Desktop\Workspace\BTP\Data@test852.txt', 'wt');
     for i=1:1
-        T=Tempratures(i);   
+        T=319.55;   
         for j=1:1
             R_lm =R_lms(i);
-            Tf=10;               %Final time in minutes
+            Tf=180;               %Final time in minutes
             n=double(Tf*2);             %No of parts
             A_1= A(1,1)*(T-273.15) + A(1,2);
             A_2 = A(2,1)*(T-273.15) + A(2,2);
@@ -76,7 +76,7 @@ function [t,y]= Data_Generation()
             [t,y]=NLDaeSoln(Tf,n,I_0,M_0);
             Xm=y(:,13);
             
-            %%plot(t,Xm), xlabel('Time(min)'), ylabel('Conversion, Xm'), title('Batch ');
+            plot(t,Xm), xlabel('Time(min)'), ylabel('Conversion, Xm'), title('Batch ');
             
             N=length(Xm);
             Conversion=Xm(N);
