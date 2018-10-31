@@ -12,7 +12,7 @@ function Conversion= MMA_Simulation(I_0, M_0, T, R_lm, Tf)
     global E_d E_p E_td k_d0 k0_tm k0_td0 k0_p0 R_gas A_1 A_2 A_3 A_4 B_1 B_2 B_3 B_4 MW_m R_li R_vm f k_d k_tc k0_td k_tm kp_0 kt_0 rho_m rho_p    
     %%%%%Parameters for the MMA Dae system
     
-    
+    Tf=double(Tf)
     E_d= 128.45E3;                
     E_p= 18.22E3;                
     E_td = 2.937E3;              
@@ -42,7 +42,8 @@ function Conversion= MMA_Simulation(I_0, M_0, T, R_lm, Tf)
     %%%%%%%%
     %% Main Code for simulation
     
-    n=Tf*2;              %No of parts
+    
+    n=double(Tf*2);              %No of parts
     A_1= A(1,1)*(T-273.15) + A(1,2);
     A_2 = A(2,1)*(T-273.15) + A(2,2);
     A_3 = A(3,1)*(T-273.15) + A(3,2);
