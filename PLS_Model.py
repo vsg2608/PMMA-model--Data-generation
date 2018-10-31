@@ -8,6 +8,7 @@ from sklearn.cross_decomposition import PLSRegression
 from sklearn.metrics.pairwise import euclidean_distances
 import matplotlib.pyplot as plt
 
+
 def normalize(X,Xnorm):
     for i in range(len(X)):
         for j in range(len(Xnorm)):
@@ -103,3 +104,5 @@ plt.xlabel("Temprature")
 plt.ylabel("Initial moles of monomer")
 plt.savefig("results/7"+str(euclideanThreshold)+".png",dp=1000)
 plt.show()
+
+#%%
