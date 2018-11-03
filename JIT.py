@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from random import gauss
 import time
+import math
 eng = matlab.engine.start_matlab()
 eng.addpath(r'C:\Users\Vishesh\Desktop\Workspace\BTP',nargout=0)
 #%%
@@ -15,6 +16,8 @@ T=323.45
 R_lm =0.0
 Tf=10.0
 euclideanThreshold=0.05
+manhattanThreshold=0.05
+cosineThreshold=0.999999
 minDataPoints=20
 
 def normalize(X,Xnorm):
@@ -43,6 +46,15 @@ def writeData(s,X,Y,Xnorm):
     f.write(str(X[0]*Xnorm[0])+"\t"+str(X[1]*Xnorm[1])+"\t"+str(Y)+"\n")
     f.close()
 
+ 
+def square_rooted(x):
+    return round(math.sqrt(sum([a*a for a in x])),3)
+ 
+def cosine_similarity(x,y):
+    numerator = sum(a*b for a,b in zip(x,y))
+    denominator = square_rooted(x)*square_rooted(y)
+    return round(numerator/float(denominator),3)
+
 def manhattan_distance(x,y):
     return sum(abs(a-b) for a,b in zip(x,y))
   
@@ -63,7 +75,39 @@ def manhattanPoints(X,Y,Xpred):
     Ytrain=[]
     for k in range(10):
         for i in range(len(X)):
-            if(manhattan_distance(X[i],Xpred)<euclideanThreshold*(2**k)):
+            if(manhattan_distance(X[i],Xpred)<manhattanThreshold*(2**k)):
+                Xtrain.append(X[i])
+                Ytrain.append(Y[i])
+        if(len(Xtrain)>minDataPoints):
+            return [Xtrain,Ytrain]
+
+def cosineSimilarityPoints(X,Y,Xpred):
+    Xtrain=[]
+    Ytrain=[]
+    for k in range(10):
+        print(k)
+        for i in range(len(X)):
+            similarity=cosine_similarity(X[i],Xpred)
+            if(similarity>cosineThreshold/(2**k)):
+                Xtrain.append(X[i])
+                Ytrain.append(Y[i])
+        if(len(Xtrain)>minDataPoints):
+            print(len(Xtrain))
+            return [Xtrain,Ytrain]
+        
+def jaccard_similarity(x,y):
+    intersection_cardinality = len(set.intersection(*[set(x), set(y)]))
+    union_cardinality = len(set.union(*[set(x), set(y)]))
+    return intersection_cardinality/float(union_cardinality)
+
+def jaccardSimilarityPoints(X,Y,Xpred):
+    Xtrain=[]
+    Ytrain=[]
+    for k in range(10):
+        print(k)
+        for i in range(len(X)):
+            similarity=jaccard_similarity(X[i],Xpred)
+            if(similarity>cosineThreshold/(2**k)):
                 Xtrain.append(X[i])
                 Ytrain.append(Y[i])
         if(len(Xtrain)>minDataPoints):
@@ -74,8 +118,10 @@ def predictConversion(Xpred):
     [X,Y]=readData("Data@10.txt")
     [Xpred]=normalize([Xpred],Xnorm)
     X=normalize(X,Xnorm)
-    
     [Xtrain,Ytrain]=euclideanPoints(X,Y,Xpred)
+    #[Xtrain,Ytrain]=manhattanPoints(X,Y,Xpred)
+    #[Xtrain,Ytrain]=cosineSimilarityPoints(X,Y,Xpred)
+    #[Xtrain,Ytrain]=jaccardSimilarityPoints(X,Y,Xpred)
     pls2 = PLSRegression(n_components=2)
     pls2.fit(Xtrain, Ytrain)
     Ypredict = pls2.predict([Xpred],copy=True)
@@ -98,7 +144,7 @@ R_lms= [gauss(1000,300)for i in range(n)]
 Yactuals=[]
 Ypredicts=[]
 Time=[]
-for i in range(10):
+for i in range(n):
     currentTime=time.time()
     Xpred=[Tempratures[i],R_lms[i]]
     Ypred=predictConversion(Xpred)  #Prediction using JIT model
@@ -114,6 +160,7 @@ RMSE= rmse(Ypredicts,Yactuals)
 Correlation= np.corrcoef(Ypredicts,Yactuals)[1][0]
 averageTime=np.mean(Time)
 
+
 #%% PLots
 plt.style.use("default")
 plt.suptitle("Ypred vs Yact | Euclidean Distance\n RMSE= "+str(RMSE)+"\nCorr= "+str(Correlation)+"\nAverageTime= "+str(averageTime))
@@ -121,6 +168,7 @@ plt.plot([-0.2,1,0,0,0,0,1,-0.2],[-0.2,1,0,1,-0.2,0,0,0],color='k',linewidth=1)
 plt.scatter(Yactuals,Ypredicts, color="red",marker="o",linewidth=0.1,alpha=0.7)
 plt.xlabel("Yactual")
 plt.ylabel("Ypredicted")
+plt.savefig("results/euclidean.png",dp=1000)
 plt.show()
 
 
