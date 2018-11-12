@@ -144,28 +144,46 @@ R_lms= [gauss(1000,300)for i in range(n)]
 Yactuals=[]
 Ypredicts=[]
 Time=[]
-for i in range(1):
-    currentTime=time.time()
-    Xpred=[Tempratures[i],R_lms[i]]
-    #Ypred=predictConversion(Xpred)  #Prediction using JIT model
-    [X,Y]=readData("Data@100.txt")
-    [Xpred]=normalize([Xpred],Xnorm)
-    X=normalize(X,Xnorm)
-    [Xtrain,Ytrain]=euclideanPoints(X,Y,Xpred)
-    #[Xtrain,Ytrain]=manhattanPoints(X,Y,Xpred)
-    #[Xtrain,Ytrain]=cosineSimilarityPoints(X,Y,Xpred)
-    #[Xtrain,Ytrain]=jaccardSimilarityPoints(X,Y,Xpred)
-    pls2 = PLSRegression(n_components=2)
-    pls2.fit(Xtrain, Ytrain)
-    Ypredict = pls2.predict([Xpred],copy=True)
-    Ypred=Ypredict[0][0]
-    Ypredicts.append(Ypred)
-    T=Xpred[0]*Xnorm[0]
-    R_lm=Xpred[1]*Xnorm[1]
-    Yactual=eng.MMA_Simulation(I_0, M_0, T, R_lm, Tf)   #Actual value from ODE
-    writeData("Data@100.txt",Xpred,Yactual,Xnorm)        #writes data back to txt file
-    Yactuals.append(Yactual)
-    Time.append(time.time()-currentTime)
+i=0
+currentTime=time.time()
+Xpred=[Tempratures[i],R_lms[i]]
+#Ypred=predictConversion(Xpred)  #Prediction using JIT model
+[X,Y]=readData("Data@100.txt")
+theta=np.ones((2,2))
+theta[0][1]=theta[1][0]=0
+
+[Xpred]=normalize([Xpred],Xnorm)
+X=normalize(X,Xnorm)
+X = np.array(X, dtype=np.float)
+Y = np.array(Y, dtype=np.float)
+
+dn=[] 
+for x in X:
+    xdef=x-Xpred
+    temp=xdef.dot(theta)
+    temp=temp.dot(xdef)
+    dn.append(math.sqrt(temp))
+sigmaD=np.var(dn)
+localizationParameter=1
+Xtrain=[]
+Ytrain=[]
+for i in range(len(X)):
+    Wn=math.exp(-dn[i]/(sigmaD*localizationParameter))
+    Xtrain.append(X[i]*Wn)
+    Ytrain.append(Y[i]*Wn)
+
+pls2 = PLSRegression(n_components=2)
+pls2.fit(Xtrain, Ytrain)
+Ypredict = pls2.predict([Xpred],copy=True)
+Ypred=Ypredict[0][0]
+
+Ypredicts.append(Ypred)
+T=Xpred[0]*Xnorm[0]
+R_lm=Xpred[1]*Xnorm[1]
+Yactual=eng.MMA_Simulation(I_0, M_0, T, R_lm, Tf)   #Actual value from ODE
+writeData("Data@100.txt",Xpred,Yactual,Xnorm)        #writes data back to txt file
+Yactuals.append(Yactual)
+Time.append(time.time()-currentTime)
 
 RMSE= rmse(Ypredicts,Yactuals)
 Correlation= np.corrcoef(Ypredicts,Yactuals)[1][0]
@@ -179,7 +197,7 @@ plt.plot([-0.2,1,0,0,0,0,1,-0.2],[-0.2,1,0,1,-0.2,0,0,0],color='k',linewidth=1)
 plt.scatter(Yactuals,Ypredicts, color="red",marker="o",linewidth=0.1,alpha=0.7)
 plt.xlabel("Yactual")
 plt.ylabel("Ypredicted")
-plt.savefig("results/euclidean.png",dp=1000)
+plt.savefig("results/euclidean0.png",dp=1000)
 plt.show()
 
 
