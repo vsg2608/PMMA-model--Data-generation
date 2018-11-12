@@ -115,7 +115,7 @@ def jaccardSimilarityPoints(X,Y,Xpred):
     
 #Just in Time function with partial linear regression as local model
 def predictConversion(Xpred):
-    [X,Y]=readData("Data@10.txt")
+    [X,Y]=readData("Data@100.txt")
     [Xpred]=normalize([Xpred],Xnorm)
     X=normalize(X,Xnorm)
     [Xtrain,Ytrain]=euclideanPoints(X,Y,Xpred)
@@ -144,15 +144,26 @@ R_lms= [gauss(1000,300)for i in range(n)]
 Yactuals=[]
 Ypredicts=[]
 Time=[]
-for i in range(n):
+for i in range(1):
     currentTime=time.time()
     Xpred=[Tempratures[i],R_lms[i]]
-    Ypred=predictConversion(Xpred)  #Prediction using JIT model
+    #Ypred=predictConversion(Xpred)  #Prediction using JIT model
+    [X,Y]=readData("Data@100.txt")
+    [Xpred]=normalize([Xpred],Xnorm)
+    X=normalize(X,Xnorm)
+    [Xtrain,Ytrain]=euclideanPoints(X,Y,Xpred)
+    #[Xtrain,Ytrain]=manhattanPoints(X,Y,Xpred)
+    #[Xtrain,Ytrain]=cosineSimilarityPoints(X,Y,Xpred)
+    #[Xtrain,Ytrain]=jaccardSimilarityPoints(X,Y,Xpred)
+    pls2 = PLSRegression(n_components=2)
+    pls2.fit(Xtrain, Ytrain)
+    Ypredict = pls2.predict([Xpred],copy=True)
+    Ypred=Ypredict[0][0]
     Ypredicts.append(Ypred)
     T=Xpred[0]*Xnorm[0]
     R_lm=Xpred[1]*Xnorm[1]
     Yactual=eng.MMA_Simulation(I_0, M_0, T, R_lm, Tf)   #Actual value from ODE
-    writeData("Data@10.txt",Xpred,Yactual,Xnorm)        #writes data back to txt file
+    writeData("Data@100.txt",Xpred,Yactual,Xnorm)        #writes data back to txt file
     Yactuals.append(Yactual)
     Time.append(time.time()-currentTime)
 
