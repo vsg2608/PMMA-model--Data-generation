@@ -7,6 +7,7 @@ Created on Tue Oct 30 01:04:07 2018
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.metrics.pairwise import euclidean_distances
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def normalize(X,Xnorm):
@@ -14,10 +15,15 @@ def normalize(X,Xnorm):
         for j in range(len(Xnorm)):
             X[i][j]=X[i][j]/Xnorm[j]
     return X
+def rmse(predictions, targets):
+    Sum=0
+    for i in range(len(predictions)):
+        Sum+=((predictions[i]-targets[i])**2)
+    return Sum/len(predictions)
 
 #Data import
 #%%
-f=open("Data@10.txt","r")
+f=open("Data@100.txt","r")
 f2=open("Data@test.txt","r")
 Lines=f.readlines()
 X=[]
@@ -57,7 +63,7 @@ Mo=[]
 #Filteration by euclidean distance    
 #Training- Partial Least Square Regression
 #%%
-euclideanThreshold=0.05
+euclideanThreshold=0.01
 Ypred=[]
 count=0
 Lengths=[]
@@ -102,7 +108,12 @@ plt.scatter(t,m, linewidth=0.001,alpha=0.5,color='r')
 plt.scatter(To,Mo, linewidth=0.001,alpha=0.7,color='y')
 plt.xlabel("Temprature")
 plt.ylabel("Initial moles of monomer")
-plt.savefig("results/7"+str(euclideanThreshold)+".png",dp=1000)
+#plt.savefig("results/7"+str(euclideanThreshold)+".png",dp=1000)
 plt.show()
-
+RMSE= rmse(Ypred,Yact)
+Correlation= np.corrcoef(Ypred,Yact)[1][0]
+print(euclideanThreshold)
+print(count)
+print(RMSE)
+print(Correlation)
 #%%

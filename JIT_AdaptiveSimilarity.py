@@ -6,6 +6,8 @@ import numpy as np
 from random import gauss
 import time
 import math
+import random
+import pprint
 eng = matlab.engine.start_matlab()
 eng.addpath(r'C:\Users\Vishesh\Desktop\Workspace\BTP',nargout=0)
 #%%
@@ -19,6 +21,10 @@ euclideanThreshold=0.05
 manhattanThreshold=0.05
 cosineThreshold=0.999999
 minDataPoints=20
+#Adative Similarty measure
+localizationParameter=0.05 #psi
+tolerance=0.001
+tuningParameter=1 #alpha
 
 def normalize(X,Xnorm):
     for i in range(len(X)):
@@ -134,7 +140,27 @@ def rmse(predictions, targets):
         Sum+=((predictions[i]-targets[i])**2)
     return Sum/len(predictions)
 
+def weightedPLS(Xquery):
+    dn=[] 
+    for x in X:
+        xdef=x-Xquery
+        temp=xdef.dot(theta)
+        temp=temp.dot(xdef)
+        dn.append(math.sqrt(temp))
+    sigmaD=np.var(dn)
     
+    Xtrain=[]
+    Ytrain=[]
+    for I in range(len(X)):
+        Wn=math.exp(-dn[I]/(sigmaD*localizationParameter))
+        Xtrain.append(X[I]*Wn)
+        Ytrain.append(Y[I]*Wn)
+    
+    pls2 = PLSRegression(n_components=2)
+    pls2.fit(Xtrain, Ytrain)
+    Ypredict = pls2.predict([Xquery],copy=True)
+    Ypred=Ypredict[0][0]
+    return pls2.coef_
 
 #%% 
 n=1000
@@ -144,52 +170,59 @@ R_lms= [gauss(1000,300)for i in range(n)]
 Yactuals=[]
 Ypredicts=[]
 Time=[]
-for i in range(100):
-    currentTime=time.time()
-    Xpred=[Tempratures[i],R_lms[i]]
-    #Ypred=predictConversion(Xpred)  #Prediction using JIT model
-    
-    [X,Y]=readData("Data@1000.txt")
-    theta=np.ones((2,2))
-    theta[0][1]=theta[1][0]=0
+i=0
+currentTime=time.time()
+Xpred=[Tempratures[i],R_lms[i]]
+[X,Y]=readData("Data@1000.txt")
+X=normalize(X,Xnorm)
+X = np.array(X, dtype=np.float)
+Y = np.array(Y, dtype=np.float)
+
+thetaNew=np.ones((2,2))
+thetaNew[0][1]=thetaNew[1][0]=0
+thetas1=[]
+thetas2=[]
+iterator=[]
+for _ in range(10):
+    theta=thetaNew.copy()
+    pprint.pprint(theta)
+    thetas1.append(theta[0][0])
+    thetas2.append(theta[1][1])
+    iterator.append(_)
     [Xpred]=normalize([Xpred],Xnorm)
-    X=normalize(X,Xnorm)
-    X = np.array(X, dtype=np.float)
-    Y = np.array(Y, dtype=np.float)
-    dn=[] 
-    for x in X:
-        xdef=x-Xpred
-        temp=xdef.dot(theta)
-        temp=temp.dot(xdef)
-        dn.append(math.sqrt(temp))
-    sigmaD=np.var(dn)
-    localizationParameter=0.05 #psi .. .........
-    Xtrain=[]
-    Ytrain=[]
-    for i in range(len(X)):
-        Wn=math.exp(-dn[i]/(sigmaD*localizationParameter))
-        Xtrain.append(X[i]*Wn)
-        Ytrain.append(Y[i]*Wn)
+    coeff1=[]
+    coeff2=[]
+    for q in random.sample(range(1, len(X)), 100):
+        Coefficient=weightedPLS(X[q])
+        coeff1.append(Coefficient[0][0])
+        coeff2.append(Coefficient[1][0])
     
-    pls2 = PLSRegression(n_components=2)
-    pls2.fit(Xtrain, Ytrain)
-    Ypredict = pls2.predict([Xpred],copy=True)
-    Ypred=Ypredict[0][0]
-    
-    Ypredicts.append(Ypred)
-    T=Xpred[0]*Xnorm[0]
-    R_lm=Xpred[1]*Xnorm[1]
-    Yactual=eng.MMA_Simulation(I_0, M_0, T, R_lm, Tf)   #Actual value from ODE
-    writeData("Data@1000.txt",Xpred,Yactual,Xnorm)        #writes data back to txt file
-    Yactuals.append(Yactual)
-    Time.append(time.time()-currentTime)
+    V=[] #Variance
+    V.append(np.var(coeff1))
+    V.append(np.var(coeff2))
+    thetaNew[0][0]=math.pow(V[0],tuningParameter)
+    thetaNew[1][1]=math.pow(V[1],tuningParameter)
+
+
+plt.style.use("default")  
+plt.scatter(thetas1[:10],iterator)
+plt.scatter(thetas2[:10],iterator)
+plt.show()
+"""
+Ypredicts.append(Ypred)
+T=Xpred[0]*Xnorm[0]
+R_lm=Xpred[1]*Xnorm[1]
+Yactual=eng.MMA_Simulation(I_0, M_0, T, R_lm, Tf)   #Actual value from ODE
+writeData("Data@1000.txt",Xpred,Yactual,Xnorm)        #writes data back to txt file
+Yactuals.append(Yactual)
+Time.append(time.time()-currentTime)
 
 RMSE= rmse(Ypredicts,Yactuals)
 Correlation= np.corrcoef(Ypredicts,Yactuals)[1][0]
 averageTime=np.mean(Time)
+"""
 
-
-#%% PLots
+    #%% PLots
 plt.style.use("default")
 plt.suptitle("Ypred vs Yact | Adaptive Similarity\n RMSE= "+str(RMSE)+"\nCorr= "+str(Correlation)+"\nAverageTime= "+str(averageTime))
 plt.plot([-0.2,1,0,0,0,0,1,-0.2],[-0.2,1,0,1,-0.2,0,0,0],color='k',linewidth=1)
@@ -202,3 +235,5 @@ plt.show()
 print(RMSE)
 print(Correlation)
 print(averageTime)
+''''''
+ 
