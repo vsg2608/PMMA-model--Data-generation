@@ -24,7 +24,7 @@ minDataPoints=20
 #Adative Similarty measure
 localizationParameter=0.05 #psi
 tolerance=0.001
-tuningParameter=1 #alpha
+tuningParameter=0.5 #alpha
 
 def normalize(X,Xnorm):
     for i in range(len(X)):
@@ -183,7 +183,8 @@ thetaNew[0][1]=thetaNew[1][0]=0
 thetas1=[]
 thetas2=[]
 iterator=[]
-for _ in range(10):
+randA=random.sample(range(1, len(X)), 100)
+for _ in range(5):
     theta=thetaNew.copy()
     pprint.pprint(theta)
     thetas1.append(theta[0][0])
@@ -192,7 +193,7 @@ for _ in range(10):
     [Xpred]=normalize([Xpred],Xnorm)
     coeff1=[]
     coeff2=[]
-    for q in random.sample(range(1, len(X)), 100):
+    for q in randA:
         Coefficient=weightedPLS(X[q])
         coeff1.append(Coefficient[0][0])
         coeff2.append(Coefficient[1][0])
@@ -205,8 +206,8 @@ for _ in range(10):
 
 
 plt.style.use("default")  
-plt.scatter(thetas1[:10],iterator)
-plt.scatter(thetas2[:10],iterator)
+plt.plot(iterator[1:],thetas1[1:])
+plt.plot(iterator[1:],thetas2[1:])
 plt.show()
 """
 Ypredicts.append(Ypred)
