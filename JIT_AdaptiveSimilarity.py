@@ -140,6 +140,28 @@ def rmse(predictions, targets):
         Sum+=((predictions[i]-targets[i])**2)
     return Sum/len(predictions)
 
+def weightedPls(Xquery):
+    dn=[] 
+    for x in X:
+        xdef=x-Xquery
+        temp=xdef.dot(theta)
+        temp=temp.dot(xdef)
+        dn.append(math.sqrt(temp))
+    sigmaD=np.var(dn)
+    
+    Xtrain=[]
+    Ytrain=[]
+    for I in range(len(X)):
+        Wn=math.exp(-dn[I]/(sigmaD*localizationParameter))
+        Xtrain.append(X[I]*Wn)
+        Ytrain.append(Y[I]*Wn)
+    
+    pls2 = PLSRegression(n_components=2)
+    pls2.fit(Xtrain, Ytrain)
+    Ypredict = pls2.predict([Xquery],copy=True)
+    Ypred=Ypredict[0][0]
+    return Ypred
+
 def weightedPLS(Xquery):
     dn=[] 
     for x in X:
@@ -209,11 +231,12 @@ plt.style.use("default")
 plt.plot(iterator[1:],thetas1[1:])
 plt.plot(iterator[1:],thetas2[1:])
 plt.show()
-"""
+
+Ypred=weightedPLS(Xpred)
 Ypredicts.append(Ypred)
 T=Xpred[0]*Xnorm[0]
 R_lm=Xpred[1]*Xnorm[1]
-Yactual=eng.MMA_Simulation(I_0, M_0, T, R_lm, Tf)   #Actual value from ODE
+Yactual=eng.MMA_Simulation(I_0, M_0, T, R_lm, Tf    )   #Actual value from ODE
 writeData("Data@1000.txt",Xpred,Yactual,Xnorm)        #writes data back to txt file
 Yactuals.append(Yactual)
 Time.append(time.time()-currentTime)
@@ -221,7 +244,6 @@ Time.append(time.time()-currentTime)
 RMSE= rmse(Ypredicts,Yactuals)
 Correlation= np.corrcoef(Ypredicts,Yactuals)[1][0]
 averageTime=np.mean(Time)
-"""
 
     #%% PLots
 plt.style.use("default")
