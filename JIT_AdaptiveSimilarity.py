@@ -180,8 +180,6 @@ def weightedPLS(Xquery):
     
     pls2 = PLSRegression(n_components=2)
     pls2.fit(Xtrain, Ytrain)
-    Ypredict = pls2.predict([Xquery],copy=True)
-    Ypred=Ypredict[0][0]
     return pls2.coef_
 
 #%% 
@@ -205,6 +203,7 @@ thetaNew[0][1]=thetaNew[1][0]=0
 thetas1=[]
 thetas2=[]
 iterator=[]
+[Xpred]=normalize([Xpred],Xnorm)
 randA=random.sample(range(1, len(X)), 100)
 for _ in range(5):
     theta=thetaNew.copy()
@@ -212,7 +211,6 @@ for _ in range(5):
     thetas1.append(theta[0][0])
     thetas2.append(theta[1][1])
     iterator.append(_)
-    [Xpred]=normalize([Xpred],Xnorm)
     coeff1=[]
     coeff2=[]
     for q in randA:
@@ -232,7 +230,7 @@ plt.plot(iterator[1:],thetas1[1:])
 plt.plot(iterator[1:],thetas2[1:])
 plt.show()
 
-Ypred=weightedPLS(Xpred)
+Ypred=weightedPls(Xpred)
 Ypredicts.append(Ypred)
 T=Xpred[0]*Xnorm[0]
 R_lm=Xpred[1]*Xnorm[1]
