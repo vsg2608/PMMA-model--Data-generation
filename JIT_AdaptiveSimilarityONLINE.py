@@ -230,7 +230,7 @@ plt.plot(iterator[1:],thetas1[1:])
 plt.plot(iterator[1:],thetas2[1:])
 plt.show()
 
-    #%%
+     #%%
 
 Ypred=weightedPls(Xpred)
 Ypredicts.append(Ypred)
