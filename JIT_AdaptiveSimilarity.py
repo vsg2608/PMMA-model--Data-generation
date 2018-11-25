@@ -191,6 +191,7 @@ Yactuals=[]
 Ypredicts=[]
 Time=[]
 i=0
+
 currentTime=time.time()
 Xpred=[Tempratures[i],R_lms[i]]
 [X,Y]=readData("Data@1000.txt")
@@ -229,6 +230,8 @@ plt.style.use("default")
 plt.plot(iterator[1:],thetas1[1:])
 plt.plot(iterator[1:],thetas2[1:])
 plt.show()
+
+#%%
 
 Ypred=weightedPls(Xpred)
 Ypredicts.append(Ypred)
